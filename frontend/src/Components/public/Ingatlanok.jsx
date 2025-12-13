@@ -1,21 +1,25 @@
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { IngatlanokContext } from "../../Context/IngatlanokContext";
 import Ingatlan from "./Ingatlan";
 
 export default function Ingatlanok() {
-  const { ingatlanokLista, getIngatlanok } =
+  const { ingatlanokLista, loading } =
     useContext(IngatlanokContext);
 
-  useEffect(() => {
-    getIngatlanok();
-  }, [getIngatlanok]);
+  if (loading) {
+    return <p className="loading">Ingatlanok betöltése...</p>;
+  }
 
   return (
-    <div>
+    <div className="ingatlan-oldal">
+      <h1>Ingatlan kínálat</h1>
 
-      <div className="ingatlan-lista">
+      <div className="ingatlan-grid">
         {ingatlanokLista.map((ingatlan) => (
-          <Ingatlan key={ingatlan.id} ingatlan={ingatlan} />
+          <Ingatlan
+            key={ingatlan.id}
+            ingatlan={ingatlan}
+          />
         ))}
       </div>
     </div>
