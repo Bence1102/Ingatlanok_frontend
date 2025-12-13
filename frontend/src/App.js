@@ -1,10 +1,11 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createBrowserRouter, Navigation } from "react-router-dom";
 import "./App.css";
-import PublicPage from "./Pages/Public";
-import AdminPage from "./Pages/Admin";
+import Public from "./Pages/Public";
+import Admin from "./Pages/Admin";
 import Layout from "./Pages/Layout";
 import './App.css';
 import { RouterProvider } from "react-router";
+
 
 
 const router = createBrowserRouter([
@@ -14,15 +15,15 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Navigate to="/kezdolap" replace />,
+        element: <Navigation to="/kezdolap" replace />,
       },
       {
         path: "kezdolap",
-        element: <PublicPage />,
+        element: <Public />,
       },
       {
         path: "Admin",
-        element: <AdminPage />,
+        element: <Admin />,
       },
     ],
   },
@@ -39,7 +40,7 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <RouterProviderovider router={router} />
+    <RouterProvider router={router} />
   );
 }
 
