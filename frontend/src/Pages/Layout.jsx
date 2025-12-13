@@ -1,4 +1,4 @@
-import { Outlet } from "react-router";
+import { Outlet } from "react-router-dom";
 import Navigation from "./Navigation";
 
 function Layout() {
@@ -13,7 +13,7 @@ function Layout() {
       </article>
 
       <footer >
-        <p>Készítette: Szente Benceés Murai Tamás</p>
+        <p>Készítette: Szente Bence és Murai Tamás</p>
       </footer>
     </main>
   );
