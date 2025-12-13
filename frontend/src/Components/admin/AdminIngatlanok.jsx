@@ -6,13 +6,37 @@ function AdminIngatlanok({ onSzerkeszt }) {
   const [kategoria, setKategoria] = useState("Összes");
   const [szurtLista, setSzurtLista] = useState([]);
 
-  const kategoriak = ["Összes", ...new Set(ingatlanokLista.map(i => i.kategoria || "Ismeretlen"))];
+  const kategoriak = {
+    1: "Ház",
+    2: "Lakás",
+    3: "Építési telek",
+    4: "Garázs",
+    5: "Mezőgazdasági",
+    6: "Ipari",
+  };
+
+  const alapKategoriak = [
+    "Összes",
+    "Ház",
+    "Garázs",
+    "Lakás",
+    "Építési telek",
+    "Ipari",
+    "Mezőgazdasági",
+    "Egyéb"
+  ];
 
   useEffect(() => {
     if (kategoria === "Összes") {
       setSzurtLista(ingatlanokLista);
+    } else if (kategoria === "Egyéb") {
+      setSzurtLista(
+        ingatlanokLista.filter(i => !Object.values(kategoriak).includes(kategoriak[i.kategoriak_id]))
+      );
     } else {
-      setSzurtLista(ingatlanokLista.filter(i => i.kategoria === kategoria));
+      setSzurtLista(
+        ingatlanokLista.filter(i => kategoriak[i.kategoriak_id] === kategoria)
+      );
     }
   }, [kategoria, ingatlanokLista]);
 
@@ -22,9 +46,9 @@ function AdminIngatlanok({ onSzerkeszt }) {
   return (
     <>
       <label>
-        Válassz kategóriát:
+        Válassz típust:
         <select value={kategoria} onChange={e => setKategoria(e.target.value)}>
-          {kategoriak.map(k => (
+          {alapKategoriak.map(k => (
             <option key={k} value={k}>{k}</option>
           ))}
         </select>
@@ -42,11 +66,11 @@ function AdminIngatlanok({ onSzerkeszt }) {
           </tr>
         </thead>
         <tbody>
-          {szurtLista.map((ingatlan) => (
+          {szurtLista.map(ingatlan => (
             <tr key={ingatlan.id} style={{ borderBottom: "1px solid #ccc" }}>
               <td>{ingatlan.id}</td>
-              <td>{ingatlan.tipus}</td>
-              <td>{ingatlan.cim || ingatlan.nev}</td>
+              <td>{kategoriak[ingatlan.kategoriak_id] || "Egyéb"}</td>
+              <td>{ingatlan.leiras}</td>
               <td>{ingatlan.ar.toLocaleString("hu-HU")} Ft</td>
               <td>{ingatlan.tehermentes ? "Igen" : "Nem"}</td>
               <td>

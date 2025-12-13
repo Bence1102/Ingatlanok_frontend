@@ -1,83 +1,91 @@
-import { useState, useEffect } from "react";
+import { useContext, useState, useEffect } from "react";
+import { IngatlanokContext } from "../../Context/IngatlanokContext";
 
-function AdminIngatlanSzerkeszto({ ingatlan, onMentes, onMegse }) {
-  const [formAdat, setFormAdat] = useState({
-    tipus: "",
-    cim: "",
-    ar: 0,
-    tehermentes: false,
-    kategoria: "",
-  });
+function AdminIngatlanok({ onSzerkeszt }) {
+  const { ingatlanokLista, loading } = useContext(IngatlanokContext);
+  const [kategoria, setKategoria] = useState("Összes");
+  const [szurtLista, setSzurtLista] = useState([]);
+
+  const kategoriak = {
+    1: "Ház",
+    2: "Lakás",
+    3: "Építési telek",
+    4: "Garázs",
+    5: "Mezőgazdasági",
+    6: "Ipari",
+  };
+
+  const alapKategoriak = [
+    "Összes",
+    "Ház",
+    "Garázs",
+    "Lakás",
+    "Építési telek",
+    "Ipari",
+    "Mezőgazdasági",
+    "Egyéb",
+  ];
 
   useEffect(() => {
-    if (ingatlan) {
-      setFormAdat({
-        tipus: ingatlan.tipus || "",
-        cim: ingatlan.cim || ingatlan.nev || "",
-        ar: ingatlan.ar || 0,
-        tehermentes: ingatlan.tehermentes || false,
-        kategoria: ingatlan.kategoria || "",
-      });
+    if (kategoria === "Összes") {
+      setSzurtLista(ingatlanokLista);
+    } else if (kategoria === "Egyéb") {
+      setSzurtLista(
+        ingatlanokLista.filter(
+          i => !Object.values(kategoriak).includes(kategoriak[i.kategoriak_id])
+        )
+      );
+    } else {
+      setSzurtLista(
+        ingatlanokLista.filter(
+          i => kategoriak[i.kategoriak_id] === kategoria
+        )
+      );
     }
-  }, [ingatlan]);
+  }, [kategoria, ingatlanokLista]);
 
-  if (!ingatlan) return <p>Válassz ki egy ingatlant a szerkesztéshez.</p>;
-
-  function handleChange(e) {
-    const { name, value, type, checked } = e.target;
-    setFormAdat((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  }
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    onMentes(formAdat);
-  }
+  if (loading) return <p>Betöltés...</p>;
+  if (!ingatlanokLista.length) return <p>Nincs elérhető ingatlan.</p>;
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginTop: "1rem" }}>
-      <div>
-        <label>Típus:</label>
-        <input name="tipus" value={formAdat.tipus} onChange={handleChange} required />
-      </div>
-      <div>
-        <label>Cím:</label>
-        <input name="cim" value={formAdat.cim} onChange={handleChange} required />
-      </div>
-      <div>
-        <label>Ár (Ft):</label>
-        <input
-          name="ar"
-          type="number"
-          value={formAdat.ar}
-          onChange={handleChange}
-          required
-          min="0"
-        />
-      </div>
-      <div>
-        <label>
-          <input
-            name="tehermentes"
-            type="checkbox"
-            checked={formAdat.tehermentes}
-            onChange={handleChange}
-          />
-          Tehermentes
-        </label>
-      </div>
-      <div>
-        <label>Kategória:</label>
-        <input name="kategoria" value={formAdat.kategoria} onChange={handleChange} />
-      </div>
-      <button type="submit">Mentés</button>
-      <button type="button" onClick={onMegse} style={{ marginLeft: "1rem" }}>
-        Mégse
-      </button>
-    </form>
+    <>
+      <label>
+        Válassz típust:
+        <select value={kategoria} onChange={e => setKategoria(e.target.value)}>
+          {alapKategoriak.map(k => (
+            <option key={k} value={k}>{k}</option>
+          ))}
+        </select>
+      </label>
+
+      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem" }}>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Típus</th>
+            <th>Cím</th>
+            <th>Ár</th>
+            <th>Tehermentes</th>
+            <th>Műveletek</th>
+          </tr>
+        </thead>
+        <tbody>
+          {szurtLista.map((ingatlan) => (
+            <tr key={ingatlan.id} style={{ borderBottom: "1px solid #ccc" }}>
+              <td>{ingatlan.id}</td>
+              <td>{kategoriak[ingatlan.kategoriak_id] || "Egyéb"}</td>
+              <td>{ingatlan.cim || ingatlan.leiras}</td>
+              <td>{ingatlan.ar.toLocaleString("hu-HU")} Ft</td>
+              <td>{ingatlan.tehermentes ? "Igen" : "Nem"}</td>
+              <td>
+                <button onClick={() => onSzerkeszt(ingatlan)}>Szerkesztés</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
   );
 }
 
-export default AdminIngatlanSzerkeszto;
+export default AdminIngatlanok;
