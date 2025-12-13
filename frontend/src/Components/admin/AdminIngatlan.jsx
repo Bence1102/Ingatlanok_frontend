@@ -1,91 +1,183 @@
-import { useContext, useState, useEffect } from "react";
-import { IngatlanokContext } from "../../Context/IngatlanokContext";
+import { useState, useEffect } from "react";
 
-function AdminIngatlanok({ onSzerkeszt }) {
-  const { ingatlanokLista, loading } = useContext(IngatlanokContext);
-  const [kategoria, setKategoria] = useState("Összes");
-  const [szurtLista, setSzurtLista] = useState([]);
+function AdminIngatlanSzerkeszto({ ingatlan, onMentes, onMegse }) {
+    const [formAdat, setFormAdat] = useState({
+        kategoria: "",
+        leiras: "",
+        tehermentes: false,
+        ar: 0,
+        kepUrl: "",
+    });
 
-  const kategoriak = {
-    1: "Ház",
-    2: "Lakás",
-    3: "Építési telek",
-    4: "Garázs",
-    5: "Mezőgazdasági",
-    6: "Ipari",
-  };
+    const kategoriak = [
+        "Ház",
+        "Lakás",
+        "Építési telek",
+        "Garázs",
+        "Mezőgazdasági",
+        "Ipari",
+        "Egyéb",
+    ];
 
-  const alapKategoriak = [
-    "Összes",
-    "Ház",
-    "Garázs",
-    "Lakás",
-    "Építési telek",
-    "Ipari",
-    "Mezőgazdasági",
-    "Egyéb",
-  ];
+    useEffect(() => {
+        if (ingatlan) {
+            setFormAdat({
+                kategoria:
+                    ingatlan.kategoria ||
+                    kategoriak[ingatlan.kategoriak_id - 1] ||
+                    "Egyéb",
+                leiras: ingatlan.leiras || "",
+                tehermentes: Boolean(ingatlan.tehermentes),
+                ar: ingatlan.ar || 0,
+                kepUrl: ingatlan.kepUrl || "",
+            });
+        }
+    }, [ingatlan]);
 
-  useEffect(() => {
-    if (kategoria === "Összes") {
-      setSzurtLista(ingatlanokLista);
-    } else if (kategoria === "Egyéb") {
-      setSzurtLista(
-        ingatlanokLista.filter(
-          i => !Object.values(kategoriak).includes(kategoriak[i.kategoriak_id])
-        )
-      );
-    } else {
-      setSzurtLista(
-        ingatlanokLista.filter(
-          i => kategoriak[i.kategoriak_id] === kategoria
-        )
-      );
+    if (!ingatlan) return <p>Válassz ki egy ingatlant.</p>;
+
+    function handleChange(e) {
+        const { name, value, type, checked } = e.target;
+        setFormAdat(prev => ({
+            ...prev,
+            [name]: type === "checkbox" ? checked : value,
+        }));
     }
-  }, [kategoria, ingatlanokLista]);
 
-  if (loading) return <p>Betöltés...</p>;
-  if (!ingatlanokLista.length) return <p>Nincs elérhető ingatlan.</p>;
+    function handleSubmit(e) {
+        e.preventDefault();
+        onMentes({ ...formAdat, id: ingatlan.id });
+    }
 
-  return (
-    <>
-      <label>
-        Válassz típust:
-        <select value={kategoria} onChange={e => setKategoria(e.target.value)}>
-          {alapKategoriak.map(k => (
-            <option key={k} value={k}>{k}</option>
-          ))}
-        </select>
-      </label>
+    return (
+        <div
+            style={{
+                maxWidth: "900px",
+                margin: "2rem auto",
+                background: "#fff",
+                borderRadius: "6px",
+                boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+                padding: "1.5rem",
+            }}
+        >
+            <h3 style={{ marginBottom: "1rem" }}>
+                Ingatlan adatainak szerkesztése
+            </h3>
 
-      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem" }}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Típus</th>
-            <th>Cím</th>
-            <th>Ár</th>
-            <th>Tehermentes</th>
-            <th>Műveletek</th>
-          </tr>
-        </thead>
-        <tbody>
-          {szurtLista.map((ingatlan) => (
-            <tr key={ingatlan.id} style={{ borderBottom: "1px solid #ccc" }}>
-              <td>{ingatlan.id}</td>
-              <td>{kategoriak[ingatlan.kategoriak_id] || "Egyéb"}</td>
-              <td>{ingatlan.cim || ingatlan.leiras}</td>
-              <td>{ingatlan.ar.toLocaleString("hu-HU")} Ft</td>
-              <td>{ingatlan.tehermentes ? "Igen" : "Nem"}</td>
-              <td>
-                <button onClick={() => onSzerkeszt(ingatlan)}>Szerkesztés</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </>
-  );
+            <div style={{ marginBottom: "1rem" }}>
+                <label style={{ fontWeight: "bold" }}>Kép URL</label>
+                <input
+                    type="text"
+                    name="kepUrl"
+                    value={formAdat.kepUrl}
+                    onChange={handleChange}
+                    style={{ width: "100%", padding: "0.5rem" }}
+                />
+                {formAdat.kepUrl && (
+                    <div className="ingatlan-card" style={{ marginTop: "1rem" }}>
+                        <img
+                            src={`/kepek/${formAdat.kepUrl}`}
+                            alt={formAdat.leiras}
+                            className="ingatlan-kep"
+                            style={{
+                                maxWidth: "100%",
+                                borderRadius: "4px",
+                                border: "1px solid #ddd",
+                            }}
+                        />
+                    </div>
+                )}
+
+            </div>
+
+            <form onSubmit={handleSubmit}>
+                <div style={{ marginBottom: "1rem" }}>
+                    <label style={{ fontWeight: "bold" }}>Kategória</label>
+                    <select
+                        name="kategoria"
+                        value={formAdat.kategoria}
+                        onChange={handleChange}
+                        style={{ width: "100%", padding: "0.5rem" }}
+                    >
+                        {kategoriak.map(k => (
+                            <option key={k} value={k}>
+                                {k}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                <div style={{ marginBottom: "1rem" }}>
+                    <label style={{ fontWeight: "bold" }}>Leírás</label>
+                    <textarea
+                        name="leiras"
+                        value={formAdat.leiras}
+                        onChange={handleChange}
+                        rows={3}
+                        style={{ width: "100%", padding: "0.5rem" }}
+                    />
+                </div>
+
+                <div style={{ marginBottom: "1rem" }}>
+                    <label style={{ fontWeight: "bold" }}>Ár (Ft)</label>
+                    <input
+                        type="number"
+                        name="ar"
+                        value={formAdat.ar}
+                        onChange={handleChange}
+                        style={{ width: "100%", padding: "0.5rem" }}
+                    />
+                </div>
+
+                <div style={{ marginBottom: "1rem" }}>
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="tehermentes"
+                            checked={formAdat.tehermentes}
+                            onChange={handleChange}
+                            style={{ marginRight: "0.5rem" }}
+                        />
+                        Tehermentes
+                    </label>
+                </div>
+
+                <div style={{ marginTop: "1.5rem" }}>
+                    <button
+                        type="submit"
+                        style={{
+                            padding: "0.5rem 1rem",
+                            background: "#0d6efd",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: "4px",
+                        }}
+                    >
+                        Mentés
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={onMegse}
+                        style={{
+                            marginLeft: "0.5rem",
+                            padding: "0.5rem 1rem",
+                            background: "#6c757d",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: "4px",
+                        }}
+                    >
+                        Vissza
+                    </button>
+                </div>
+            </form>
+
+            <p style={{ marginTop: "1rem", fontSize: "0.85rem", color: "#666" }}>
+                Készítette: Csáfalvay Katalin
+            </p>
+        </div>
+    );
 }
 
-export default AdminIngatlanok;
+export default AdminIngatlanSzerkeszto;

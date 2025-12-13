@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from "react";
 import { IngatlanokContext } from "../../Context/IngatlanokContext";
 
-function AdminIngatlanok({ onSzerkeszt }) {
+function AdminIngatlanok({ onSzerkeszt, onTorol }) {
   const { ingatlanokLista, loading } = useContext(IngatlanokContext);
   const [kategoria, setKategoria] = useState("Összes");
   const [szurtLista, setSzurtLista] = useState([]);
@@ -23,7 +23,7 @@ function AdminIngatlanok({ onSzerkeszt }) {
     "Építési telek",
     "Ipari",
     "Mezőgazdasági",
-    "Egyéb"
+    "Egyéb",
   ];
 
   useEffect(() => {
@@ -31,14 +31,26 @@ function AdminIngatlanok({ onSzerkeszt }) {
       setSzurtLista(ingatlanokLista);
     } else if (kategoria === "Egyéb") {
       setSzurtLista(
-        ingatlanokLista.filter(i => !Object.values(kategoriak).includes(kategoriak[i.kategoriak_id]))
+        ingatlanokLista.filter(i => !kategoriak[i.kategoriak_id])
       );
     } else {
       setSzurtLista(
-        ingatlanokLista.filter(i => kategoriak[i.kategoriak_id] === kategoria)
+        ingatlanokLista.filter(
+          i => kategoriak[i.kategoriak_id] === kategoria
+        )
       );
     }
   }, [kategoria, ingatlanokLista]);
+
+  function handleTorol(ingatlan) {
+    if (
+      window.confirm(
+        `Biztosan törlöd ezt az ingatlant?\n\n${ingatlan.leiras}`
+      )
+    ) {
+      onTorol(ingatlan.id);
+    }
+  }
 
   if (loading) return <p>Betöltés...</p>;
   if (!ingatlanokLista.length) return <p>Nincs elérhető ingatlan.</p>;
@@ -49,12 +61,20 @@ function AdminIngatlanok({ onSzerkeszt }) {
         Válassz típust:
         <select value={kategoria} onChange={e => setKategoria(e.target.value)}>
           {alapKategoriak.map(k => (
-            <option key={k} value={k}>{k}</option>
+            <option key={k} value={k}>
+              {k}
+            </option>
           ))}
         </select>
       </label>
 
-      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem" }}>
+      <table
+        style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          marginTop: "1rem",
+        }}
+      >
         <thead>
           <tr>
             <th>ID</th>
@@ -74,7 +94,15 @@ function AdminIngatlanok({ onSzerkeszt }) {
               <td>{ingatlan.ar.toLocaleString("hu-HU")} Ft</td>
               <td>{ingatlan.tehermentes ? "Igen" : "Nem"}</td>
               <td>
-                <button onClick={() => onSzerkeszt(ingatlan)}>Szerkesztés</button>
+                <button onClick={() => onSzerkeszt(ingatlan)}>
+                  Szerkesztés
+                </button>
+                <button
+                  onClick={() => handleTorol(ingatlan)}
+                  style={{ marginLeft: "0.5rem", color: "red" }}
+                >
+                  Törlés
+                </button>
               </td>
             </tr>
           ))}
