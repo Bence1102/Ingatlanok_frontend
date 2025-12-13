@@ -1,8 +1,12 @@
+import Ingatlanok from "../Components/public/Ingatlanok";
+import KategoriaSzuro from "../Components/public/KategoriaSzuro";
+
 function Public() {
   return (
     <div>
       <h1>Ingatlanok</h1>
-      <p>Itt jelennek meg a nyilvános ingatlanok.</p>
+      <KategoriaSzuro />
+      <Ingatlanok />
     </div>
   );
 }
