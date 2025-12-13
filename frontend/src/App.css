@@ -18,3 +18,37 @@
   color: #61dafb;
 }
 
+.nav {
+  display: flex;
+  gap: 1rem;
+  background-color: #f0f0f0;
+  padding: 1rem;
+}
+
+.nav ul {
+  list-style: none;
+  display: flex;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+}
+
+
+
+.nav-link {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+}
+
+.nav-link:hover {
+  background-color: #ddd;
+}
+
+.nav-link.active {
+  background-color: #007bff;
+  color: white;
+}
+
