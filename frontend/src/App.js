@@ -1,10 +1,8 @@
-import { createBrowserRouter, Navigation } from "react-router-dom";
-import "./App.css";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Public from "./Pages/Public";
 import Admin from "./Pages/Admin";
 import Layout from "./Pages/Layout";
 import './App.css';
-import { RouterProvider } from "react-router";
 
 
 
@@ -15,7 +13,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Navigation to="/kezdolap" replace />,
+        element: <Public />,
       },
       {
         path: "kezdolap",

@@ -8,11 +8,11 @@ function Layout() {
         <Navigation />
       </header>
 
-      <article className="">
-        <Outlet />
+      <article>
+        <Outlet /> {}
       </article>
 
-      <footer >
+      <footer>
         <p>Készítette: Szente Bence és Murai Tamás</p>
       </footer>
     </main>
