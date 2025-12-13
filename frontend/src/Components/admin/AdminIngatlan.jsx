@@ -174,7 +174,7 @@ function AdminIngatlanSzerkeszto({ ingatlan, onMentes, onMegse }) {
             </form>
 
             <p style={{ marginTop: "1rem", fontSize: "0.85rem", color: "#666" }}>
-                Készítette: Csáfalvay Katalin
+                Készítette: Szente Bence és Murai Tamás
             </p>
         </div>
     );
